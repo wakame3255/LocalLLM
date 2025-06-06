@@ -25,7 +25,20 @@ public class LLMResponseModel
     /// </summary>
     private TalkDataMemory _talkDataMemory = new TalkDataMemory();
 
-	private const string HEAD_WORD = "--現在の質問--";
+	private GameStateJudge _stateJuge;
+
+    private string _headWord = "";
+
+	public LLMResponseModel(GameStateJudge stateJuge)
+	{
+        _stateJuge = stateJuge;
+    }
+
+	public void FirstJuge()
+	{
+		RunLLM("最初の危機的状況を提示してください。");
+        _headWord = "--プレイヤーの解決策--";
+    }
 
     /// <summary>
     /// LLMの実行を開始するメソッド
@@ -46,7 +59,7 @@ public class LLMResponseModel
 			state = PythonEngine.BeginAllowThreads();
 
             //質問のフォーマット生成
-            string formattedQuestion = talkHistory + "\n" + HEAD_WORD + "\n" + question;
+            string formattedQuestion = talkHistory + "\n" + _headWord + "\n" + question;
 
 			DebugUtility.Log(formattedQuestion);
 
@@ -56,9 +69,12 @@ public class LLMResponseModel
             //会話のログを記録
             _talkDataMemory.AddTalkData(question, resultText);
 
-            //返答をセット
-            _response.Value = resultText;
+			//返答をセット
+			_response.Value = resultText;
 
+			//ゲーム判定クラスに通知
+			_stateJuge.NoticeResult(resultText);
+            //デバッグログに出力
             DebugUtility.Log(resultText);
         }
 		catch (OperationCanceledException e) when (e.CancellationToken == _cancellationToken)
@@ -83,7 +99,7 @@ public class LLMResponseModel
 		//LLMモデルパス
 		string modelPath =
 			Application.streamingAssetsPath + "/GGUF/" + "/Phi-3-mini-128k-instruct.Q5_K_M.gguf";
-		string systemContent = "あなたは「危機脱出ゲーム」のゲームマスターです。以下のルールに従って進行してください：\r\n\r\n【役割】\r\n- 危機的状況の出題者\r\n- プレイヤーの解決策に対する判定者\r\n\r\n【出題ルール】\r\n1. ランダムで現実的な危機的状況を1つ提示する\r\n2. 状況は具体的で分かりやすく、100文字程度で説明する\r\n3. 生死に関わる緊急性のある場面を設定する\r\n\r\n【判定ルール】\r\n1. プレイヤーの解決策を「助かる」「助からない」の2段階で評価\r\n2. 解決策を交えた物語を簡潔に説明する（50文字程度）\r\n3. 現実的な観点から合理的に判断する\r\n4. 創意工夫や機転の利いた解決策は高く評価する\r\n\r\n【出力形式】\r\n危機的状況の提示：\r\n「状況：[具体的な危機状況]」\r\n\r\n解決策への判定：\r\n「結果：[助かる/助からない]」\r\n「理由：[解決策を交えた判定理由]」\r\n\r\nでは、最初の危機的状況を提示してください。";
+		string systemContent = "あなたは危機脱出ゲームのAIです。\r\n\r\n【出題】\r\n危機的状況をランダムで1つ提示してください（100文字以内）\r\n\r\n【判定】\r\nプレイヤーの解決策を評価し、以下の形式で回答：\r\n結果：助かる/助からない\r\n理由：解決策を実行した結果と判定根拠（50文字以内）\r\n\r\n解決策の実行過程と結果を具体的に想像して判定してください。";
 		Debug.Log(modelPath);
 
         using (Py.GIL())

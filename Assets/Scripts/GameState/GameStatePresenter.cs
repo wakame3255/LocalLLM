@@ -9,13 +9,15 @@ public class GameStatePresenter
     private GameStateGuardian _gameStateModel;
 
     private MainMenuView _mainMenuView;
-    private PauseView _pauseView;
+    private GameOverView _gameOverView;
+    private ClearView _clearView;
 
-    public GameStatePresenter(GameStateGuardian gameStateModel, MainMenuView mainMenuView, PauseView pauseView)
+    public GameStatePresenter(GameStateGuardian gameStateModel, GameViewData gameViewData)
     {
         _gameStateModel = gameStateModel;
-        _mainMenuView = mainMenuView;
-        _pauseView = pauseView;
+        _mainMenuView = gameViewData.MainMenuView;
+        _gameOverView = gameViewData.GameOverView;
+        _clearView = gameViewData.ClearView;
         Initialize();
     }
 

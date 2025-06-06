@@ -26,5 +26,7 @@ public class LLMTextPresenter
 
         // LLMの返答を表示
         _llmModel.Response.Subscribe(aw => _textView.SetText(aw));
+
+        _llmModel.FirstJuge();
     }
 }

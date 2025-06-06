@@ -24,8 +24,11 @@ public class LLMTextView : MonoBehaviour
         else
         {
             Debug.LogWarning("Text component is not assigned.");
-        }
+        }        
+    }
 
-        
+    public void ChangeActive(bool isActive)
+    {
+        gameObject.SetActive(isActive);
     }
 }
