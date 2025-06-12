@@ -38,4 +38,10 @@ public class GameStateGuardian : IGameStateGuardian
             _currentGameState.Value = newState;
         }
     }
+
+    public void DoGameExit()
+    {
+        // ƒQ[ƒ€I—¹ˆ—‚ğ‚±‚±‚ÉÀ‘•
+        UnityEngine.Application.Quit();
+    }
 }

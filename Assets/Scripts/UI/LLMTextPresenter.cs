@@ -27,6 +27,29 @@ public class LLMTextPresenter
         // LLMの返答を表示
         _llmModel.Response.Subscribe(aw => _textView.SetText(aw));
 
-        _llmModel.FirstJuge();
+        // LLMの状態を購読して、ビューの表示/非表示を切り替える
+        _llmModel.CurrentGameState.Subscribe(NoticeViewActive);
+
+        //LLM送信許可通知
+        _llmModel.AcceptLLMCall.Subscribe(_textView.AcceptLLMButton);
+    }
+
+    private void NoticeViewActive(GameState gameState)
+    {
+        switch (gameState)
+        {
+            case GameState.InGame:
+                _textView.ChangeInGame();
+                break;
+            case GameState.Clear:
+                _textView.ChangeResult();
+                break;
+            case GameState.GameOver:
+                _textView.ChangeResult();
+                break;
+            case GameState.Menu:
+                _textView.ChangeMainMenu();
+                break;
+        }
     }
 }

@@ -27,11 +27,27 @@ public class LLMResponseModel
 
 	private GameStateJudge _stateJuge;
 
+    /// <summary>
+    /// ゲームの状態を保持するReactiveProperty
+    /// </summary>
+    private ReactiveProperty<GameState> _gameState = new ReactiveProperty<GameState>();
+    public ReadOnlyReactiveProperty<GameState> CurrentGameState => _gameState;
+
+    /// <summary>
+    /// LLMの呼び出しを許可するかどうかのReactiveProperty
+    /// </summary>
+    private ReactiveProperty<bool> _acceptLLMCall = new ReactiveProperty<bool>(false);
+    public ReadOnlyReactiveProperty<bool> AcceptLLMCall => _acceptLLMCall;
+
     private string _headWord = "";
 
 	public LLMResponseModel(GameStateJudge stateJuge)
 	{
         _stateJuge = stateJuge;
+
+        //ゲーム状態の購読
+        stateJuge.CurrentGameState
+            .Subscribe(NoticeViewActive);
     }
 
 	public void FirstJuge()
@@ -74,6 +90,10 @@ public class LLMResponseModel
 
 			//ゲーム判定クラスに通知
 			_stateJuge.NoticeResult(resultText);
+
+            //通信許可
+            _acceptLLMCall.Value = true;
+
             //デバッグログに出力
             DebugUtility.Log(resultText);
         }
@@ -112,4 +132,18 @@ public class LLMResponseModel
             return result; 
         }
 	}
+
+	private void NoticeViewActive(GameState gameState)
+    {
+        //ビューのアクティブ状態を更新
+        _gameState.Value = gameState;
+
+        if (gameState == GameState.Menu)
+        {
+            _talkDataMemory.ResetTalkData(); // 会話履歴をリセット
+
+            _acceptLLMCall.Value = false; // メニュー状態ではLLMの呼び出しを無効化
+            FirstJuge(); // 最初の状況を提示
+        }
+    }
 }

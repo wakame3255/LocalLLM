@@ -5,7 +5,7 @@ using R3.Triggers;
 
 public class MainMenuView : MonoBehaviour
 {
-    [SerializeField,HideInInspector]
+    [SerializeField]
     private Button _startButton;
     public Button StartButton => _startButton;
 

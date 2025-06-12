@@ -1,5 +1,6 @@
 
 using R3;
+using R3.Triggers;
 
 /// <summary>
 /// ゲーム状態に応じてUIを制御するプレゼンター
@@ -25,6 +26,22 @@ public class GameStatePresenter
     {
         //状態購読
         _gameStateModel.CurrentGameState.Subscribe(JugeGameState);
+
+        //メインメニュー
+        _mainMenuView.StartButton.OnClickAsObservable()
+            .Subscribe(_ => TransitionInGame());
+        _mainMenuView.ExitButton.OnClickAsObservable()
+            .Subscribe(_ => TransitionExit());
+
+        //ゲームオーバー
+        _gameOverView.MainMenuButton.OnClickAsObservable()
+            .Subscribe(_ => TransitionMenu());
+        _gameOverView.RetryButton.OnClickAsObservable()
+            .Subscribe(_ => TransitionInGame());
+
+        //クリア
+        _clearView.MainMenuButton.OnClickAsObservable()
+            .Subscribe(_ => TransitionMenu());
     }
 
     /// <summary>
@@ -37,10 +54,32 @@ public class GameStatePresenter
         {
             case GameState.Menu:
                 _mainMenuView.ChangeActiveMenu(true);
+                _gameOverView.ChangeActiveMenu(false);
+                _clearView.ChangeActiveMenu(false);
                 break;
             case GameState.InGame:
                 _mainMenuView.ChangeActiveMenu(false);
                 break;
+            case GameState.Clear:
+                _clearView.ChangeActiveMenu(true);
+                break;
+            case GameState.GameOver:
+                _gameOverView.ChangeActiveMenu(true);
+                break;
         }
+    }
+    public void TransitionMenu()
+    {
+        _gameStateModel.ChangeGameState(GameState.Menu);
+    }
+
+    public void TransitionInGame()
+    {
+        _gameStateModel.ChangeGameState(GameState.InGame);
+    }
+
+    public void TransitionExit()
+    {
+        _gameStateModel.DoGameExit();
     }
 }
