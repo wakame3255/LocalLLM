@@ -6,10 +6,6 @@ public class GameOverView : MonoBehaviour
 {
 
     [SerializeField]
-    private Button _reTryButton;
-    public Button RetryButton => _reTryButton;
-
-    [SerializeField]
     private Button _mainMenuButton;
     public Button MainMenuButton => _mainMenuButton;
 

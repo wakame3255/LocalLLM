@@ -1,6 +1,5 @@
 
 using R3;
-using R3.Triggers;
 
 /// <summary>
 /// ゲーム状態に応じてUIを制御するプレゼンター
@@ -35,9 +34,7 @@ public class GameStatePresenter
 
         //ゲームオーバー
         _gameOverView.MainMenuButton.OnClickAsObservable()
-            .Subscribe(_ => TransitionMenu());
-        _gameOverView.RetryButton.OnClickAsObservable()
-            .Subscribe(_ => TransitionInGame());
+            .Subscribe(_ => TransitionMenu());              
 
         //クリア
         _clearView.MainMenuButton.OnClickAsObservable()
