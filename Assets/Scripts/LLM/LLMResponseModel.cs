@@ -37,14 +37,19 @@ public class LLMResponseModel
     private ReactiveProperty<bool> _acceptLLMCall = new ReactiveProperty<bool>(false);
     public ReadOnlyReactiveProperty<bool> AcceptLLMCall => _acceptLLMCall;
 
-    private string _headWord = "";
+    /// <summary>
+    /// LLMの出題データを保持するリポジトリ
+    /// </summary>
+    private FaultDataRepository _faultDataRepository = new FaultDataRepository();
 
-    private string _waitText = "LLMの応答を待っています...";
+    private string _headWord = "--プレイヤーの解決策--";
+
+    private string _waitText = "ローカルLLMの応答を待っています...";
 
     private string _mainPronpt;
 
-    private string _menuPronpt = "あなたは危機脱出ゲームのAIです。\r\n\r\n【システム設定】\r\n- 毎回異なるジャンルの危機的状況を生成する\r\n- 状況の難易度は中程度に設定\r\n- プレイヤーが創造的な解決策を考えられるようにする\r\n\r\n【出題フォーマット】\r\n以下のカテゴリからランダムに1つ選んで危機的状況を提示してください：\r\n\r\n1. 自然災害系（地震、火災、洪水、雪崩など）\r\n2. 密室脱出系（エレベーター、地下室、車内など）\r\n3. サバイバル系（無人島、山岳遭難、砂漠など）\r\n4. 社会的危機系（停電、交通麻痺、システム障害など）\r\n5. 心理的危機系（記憶喪失、時間制限、選択のジレンマなど）\r\n\r\n【出力例】\r\n**状況**: [具体的な危機的状況]\r\n\r\n危機的状況を1つ提示してください。";
-    private string _inGamePronpt = "【判定】\r\nプレイヤーの解決策を評価し、以下の形式で回答：\r\n結果：助かる/助からない\r\n理由：解決策を実行した結果と判定根拠（50文字以内）\r\n\r\n解決策の実行過程と結果を具体的に想像して判定してください。";
+    private string _menuPronpt = "あなたは危機脱出ゲームのAIです。危機的状況を具体的に50文字以内で1つ提示してください。\r\n【出力例】\r\n状況: [具体的な危機的状況]";
+    private string _inGamePronpt = "【判定】\r\nプレイヤーの解決策を厳しく評価し、以下の形式で回答：\r\n結果：助かる/助からない\r\n理由：解決策を実行した結果と判定根拠（50文字以内）\r\n\r\n解決策の実行過程と結果を具体的に想像して判定してください。";
 
     public LLMResponseModel(GameStateJudge stateJuge)
     {
@@ -57,8 +62,9 @@ public class LLMResponseModel
 
     public void FirstJuge()
     {
-        RunLLM("最初の危機的状況を提示してください。");
-        _headWord = "--プレイヤーの解決策--";
+        string faultData = _faultDataRepository.GetRandomFaultData();
+
+        RunLLM("最初に"+ faultData + "の危機的状況を提示してください。");
     }
 
     /// <summary>
@@ -133,7 +139,7 @@ public class LLMResponseModel
         using (Py.GIL())
         {
             //パイソンスクリプトをインポート
-            using dynamic sample = Py.Import("sample");
+            using dynamic sample = Py.Import("llama_chat_handler");
 
             //Pythonスクリプトの関数を呼び出す
             using dynamic result = sample.llamaCppPython(modelPath, _mainPronpt, question);

@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using R3.Triggers;
+using R3;
 
 public class LLMTextView : MonoBehaviour
 {
@@ -26,6 +28,13 @@ public class LLMTextView : MonoBehaviour
 
     private bool _runButtonActive = false;
 
+    private void Start()
+    {
+        // LLMボタンで質問を実行
+        _runButton.OnClickAsObservable()
+             .Subscribe(_ => AcceptLLMButton(false));
+    }
+
     public void SetText(string text)
     {
         if (_outPutText != null)
@@ -50,6 +59,8 @@ public class LLMTextView : MonoBehaviour
         _runButton!.gameObject.SetActive(false);
 
         _runButton!.gameObject.SetActive(_runButtonActive);
+
+        _inputText.text = "ここに解決策を入力してね";
 
         DebugUtility.Log("LLMのビューをアクティブにします。入力フィールドと出力フィールドを表示します。");
     }

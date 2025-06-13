@@ -28,10 +28,10 @@ public class TalkDataMemory
         }
 
         // 会話履歴を文字列に変換
-        string talkData = "--進行履歴--";
+        string talkData = "--危機的状況--";
         foreach (SingleTalkData data in _talkMemoryList)
         {
-            talkData += $"プレイヤーの選択: {data.Question}\n結果: {data.Answer}\n";
+            talkData += $"危機的状況: {data.Answer}\n";
         }
         return talkData;
     }

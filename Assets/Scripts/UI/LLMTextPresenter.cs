@@ -13,8 +13,6 @@ public class LLMTextPresenter
         _textView = textView;
         _llmModel = llmModel;
 
-        DebugUtility.Log("LLMTextPresenter initialized.");
-
         Bind();
     }
 
