@@ -3,15 +3,28 @@ from llama_cpp import Llama
 
 
 def llamaCppPython(modelPath, systemContent, userContent):
-    # GPUレイヤー数を増やして、GPUの利用を最大化
-    model = Llama(
-        model_path=modelPath,
-        chat_format="llama-2",  # より一般的なフォーマット
-        n_ctx=2048,            # コンテキストサイズを増やす
-        n_gpu_layers=35,       # GPUレイヤー数を増やす（推奨値は30以上）
-        n_batch=512,           # バッチサイズを設定
-        verbose=True,          # デバッグ情報の出力を有効化
-    )
+    try:
+        # まずGPUモードで試行
+        model = Llama(
+            model_path=modelPath,
+            chat_format="llama-2",  # より一般的なフォーマット
+            n_ctx=2048,            # コンテキストサイズを増やす
+            n_gpu_layers=35,       # GPUレイヤー数を増やす（推奨値は30以上）
+            n_batch=512,           # バッチサイズを設定
+            verbose=True,          # デバッグ情報の出力を有効化
+        )
+    except Exception as gpu_error:
+        print(f"GPUモードでの初期化に失敗しました: {str(gpu_error)}")
+        print("CPUモードで再試行します...")
+        # CPUモードで再試行
+        model = Llama(
+            model_path=modelPath,
+            chat_format="llama-2",
+            n_ctx=2048,
+            n_gpu_layers=0,  # GPUレイヤーを0に設定
+            n_batch=512,
+            verbose=True,
+        )
 
     try:
         response = model.create_chat_completion(
@@ -29,6 +42,6 @@ def llamaCppPython(modelPath, systemContent, userContent):
         return resultText
     
     except Exception as e:
-        print(f"エラーが発生しました: {str(e)}")
+        print(f"推論中にエラーが発生しました: {str(e)}")
         return f"エラー: {str(e)}"
 
