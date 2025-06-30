@@ -1,0 +1,20 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+今回のフォルダ構成です
+
+StreamingAssets/
+├── python-3.12.7-embed-amd64/  # Pythonランタイム環境
+├── Scripts/                     # Pythonスクリプト格納
+├── undreamai-v1.2.5-llamacpp/  # LLaMA C++ライブラリ
+└── GGUF/                       # 言語モデルファイル
+
+Scripts/
+├── Utility/     # ユーティリティクラス
+├── UI/          # UI関連のスクリプト
+├── LLM/         # LLM（言語モデル）関連のスクリプト
+├── GameState/   # ゲーム状態管理
+
+└── LifeTime/    # ライフタイム管理
